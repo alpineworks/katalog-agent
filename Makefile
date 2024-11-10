@@ -9,7 +9,6 @@ all: setup hooks
 setup: 
 	npm install -g @commitlint/config-conventional @commitlint/cli  
 
-
 .PHONY: hooks
 hooks:
 	@git config --local core.hooksPath .githooks/
