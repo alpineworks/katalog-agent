@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    env: prod
+    proj: katalog-agent
+  name: katalog-agent-env-configmap
+  namespace: monitoring
+data:
+  CRON_SCHEDULE: "* * * * *"
+  BLACKLISTED_NAMESPACES: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: katalog-agent
+  name: katalog-agent
+  namespace: monitoring
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: katalog-agent
+      proj: katalog-agent
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8081"
+        prometheus.io/scrape: "true"
+        prometheus.istio.io/merge-metrics: "false"
+      labels:
+        app: katalog-agent
+        proj: katalog-agent
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: katalog-agent-env-configmap
+          image: katalog-agent:dev
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: metrics
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          name: katalog-agent
+          ports:
+            - containerPort: 8081
+              name: metrics
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: metrics
+            periodSeconds: 5
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
