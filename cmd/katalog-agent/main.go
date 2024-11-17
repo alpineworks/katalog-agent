@@ -13,7 +13,9 @@ import (
 	"github.com/alpineworks/katalog-agent/internal/config"
 	"github.com/alpineworks/katalog-agent/internal/kubernetes"
 	"github.com/alpineworks/katalog-agent/internal/logging"
+	agentclient "github.com/alpineworks/katalog/backend/pkg/agent"
 	"github.com/alpineworks/ootel"
+	"github.com/michaelpeterswa/go-mtls"
 )
 
 func main() {
@@ -57,12 +59,33 @@ func main() {
 
 	shutdown, err := ootelClient.Init(ctx)
 	if err != nil {
-		panic(err)
+		slog.Error("could not initialize ootel client", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 
 	defer func() {
 		_ = shutdown(ctx)
 	}()
+
+	var x509Files *mtls.X509Files
+	if c.KatalogCertificateFile != "" && c.KatalogKeyFile != "" && c.KatalogCAFile != "" {
+		x509Files = mtls.NewX509Files(c.KatalogCertificateFile, c.KatalogKeyFile, c.KatalogCAFile)
+	}
+
+	var agentServiceClient *agentclient.AgentServiceClient
+	if x509Files != nil {
+		agentServiceClient, err = agentclient.NewAgentServiceClient(c.KatalogHost, agentclient.WithMutualTLS(x509Files))
+		if err != nil {
+			slog.Error("could not create agent service client", slog.String("error", err.Error()))
+			os.Exit(1)
+		}
+	} else {
+		agentServiceClient, err = agentclient.NewAgentServiceClient(c.KatalogHost)
+		if err != nil {
+			slog.Error("could not create agent service client", slog.String("error", err.Error()))
+			os.Exit(1)
+		}
+	}
 
 	kubernetesClient, err := kubernetes.NewKubernetesClient()
 	if err != nil {
@@ -70,7 +93,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	katalogAgent := agent.NewAgent(kubernetesClient)
+	katalogAgent := agent.NewAgent(kubernetesClient, agentServiceClient)
 
 	cronClient := cron.New()
 	_, err = cronClient.AddFunc(c.CronSchedule, katalogAgent.Collect)

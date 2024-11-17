@@ -1,5 +1,6 @@
 IMAGE ?= "katalog-agent"
 TAG ?= "dev"
+MOCK_IMAGE ?= "katalog-server"
 
 # Makefile
 all: setup hooks
@@ -25,6 +26,9 @@ kind-delete:
 kind-load:
 	docker build . -t $(IMAGE):$(TAG)
 	kind load docker-image --name kind-katalog-agent $(IMAGE):$(TAG)
+	cd docker/mockagentserver; docker build . -t $(MOCK_IMAGE):$(TAG)
+	kind load docker-image --name kind-katalog-agent $(MOCK_IMAGE):$(TAG)
+
 
 .PHONY: apply
 apply:

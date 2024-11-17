@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: katalog
+  name: katalog
+  namespace: katalog
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: katalog
+      proj: katalog
+  template:
+    metadata:
+      labels:
+        app: katalog
+        proj: katalog
+    spec:
+      containers:
+        - image: katalog-server:dev
+          imagePullPolicy: IfNotPresent
+          name: katalog-server
+          ports:
+            - containerPort: 50051
+              name: grpc
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi

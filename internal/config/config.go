@@ -15,6 +15,11 @@ type KatalogAgentConfig struct {
 	MetricsEnabled bool `env:"METRICS_ENABLED" envDefault:"true"`
 	MetricsPort    int  `env:"METRICS_PORT" envDefault:"8081"`
 
+	KatalogHost            string `env:"KATALOG_HOST" envDefault:"http://localhost:8080"`
+	KatalogCertificateFile string `env:"KATALOG_CERTIFICATE_FILE"`
+	KatalogKeyFile         string `env:"KATALOG_KEY_FILE"`
+	KatalogCAFile          string `env:"KATALOG_CA_FILE"`
+
 	TracingEnabled    bool    `env:"TRACING_ENABLED" envDefault:"false"`
 	TracingSampleRate float64 `env:"TRACING_SAMPLERATE" envDefault:"0.01"`
 	TracingService    string  `env:"TRACING_SERVICE" envDefault:"katalog-agent"`

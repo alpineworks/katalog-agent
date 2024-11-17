@@ -9,6 +9,7 @@ metadata:
 data:
   CRON_SCHEDULE: "* * * * *"
   BLACKLISTED_NAMESPACES: ""
+  KATALOG_HOST: "katalog.katalog.svc.cluster.local:50051"
 ---
 apiVersion: apps/v1
 kind: Deployment
