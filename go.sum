@@ -1,5 +1,7 @@
 github.com/alpineworks/katalog/backend v0.0.0-20241117053514-43dec5ea83a6 h1:9+2XqZcGj/0WGDe6gZi422UaUvzDz0sGyTcVvvB2I8E=
 github.com/alpineworks/katalog/backend v0.0.0-20241117053514-43dec5ea83a6/go.mod h1:UoOUlTgA0T3ljGu5SgQo67rJtf/plY5zrfZQPCCOc5o=
+github.com/alpineworks/katalog/backend v1.0.1 h1:Jz38GQxp67rhGekoK9sxBp5XfiQ3NyapiAYm+nFqK0E=
+github.com/alpineworks/katalog/backend v1.0.1/go.mod h1:JioZ2atRtrzZgKyTnp2DrZ9vQAIfDJIy65XFN+HsfsE=
 github.com/alpineworks/ootel v1.0.1 h1:lHuPRUtqqGLChgTWh1rCLTmwJKMhrrtWsHx97bbYeGg=
 github.com/alpineworks/ootel v1.0.1/go.mod h1:qQuKequ2YBLUKSuKiR9jv/8nOtz+gsUKztVr0iFjUWg=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

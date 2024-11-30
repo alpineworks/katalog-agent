@@ -68,9 +68,9 @@ func (a *Agent) Collect() {
 func translateDeployments(deployments []kubernetes.Deployment) *agentservice.PublishDeploymentsRequest {
 	var translatedDeployments []*agentservice.Deployment
 	for _, d := range deployments {
-		var containers []*agentservice.Containers
+		var containers []*agentservice.Container
 		for _, c := range d.Containers {
-			containers = append(containers, &agentservice.Containers{
+			containers = append(containers, &agentservice.Container{
 				Name:  c.Name,
 				Image: c.Image,
 				Tag:   c.Tag,
