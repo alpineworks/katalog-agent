@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.3
 
 require (
-	github.com/alpineworks/katalog/backend v0.0.0-20241117053514-43dec5ea83a6
+	github.com/alpineworks/katalog/backend v1.0.1
 	github.com/alpineworks/ootel v1.0.1
 	github.com/caarlos0/env/v11 v11.2.2
 	github.com/michaelpeterswa/go-mtls v1.0.0
