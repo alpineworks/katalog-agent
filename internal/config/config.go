@@ -9,6 +9,7 @@ import (
 type KatalogAgentConfig struct {
 	LogLevel string `env:"LOG_LEVEL" envDefault:"error"`
 
+	ClusterName           string `env:"CLUSTER_NAME" envDefault:"unknown"`
 	CronSchedule          string `env:"CRON_SCHEDULE" envDefault:"@every 30m"`
 	BlacklistedNamespaces string `env:"BLACKLISTED_NAMESPACES" envDefault:"kube-system,flux-system"`
 

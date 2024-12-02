@@ -7,6 +7,7 @@ metadata:
   name: katalog-agent-env-configmap
   namespace: monitoring
 data:
+  LOG_LEVEL: "debug"
   CRON_SCHEDULE: "* * * * *"
   BLACKLISTED_NAMESPACES: ""
   KATALOG_HOST: "katalog.katalog.svc.cluster.local:50051"

@@ -11,10 +11,11 @@ import (
 )
 
 type KubernetesClient struct {
-	clientset *kubernetes.Clientset
+	clientset   *kubernetes.Clientset
+	clusterName string
 }
 
-func NewKubernetesClient() (*KubernetesClient, error) {
+func NewKubernetesClient(clusterName string) (*KubernetesClient, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get in cluster config: %w", err)
@@ -26,7 +27,8 @@ func NewKubernetesClient() (*KubernetesClient, error) {
 	}
 
 	return &KubernetesClient{
-		clientset: clientset,
+		clientset:   clientset,
+		clusterName: clusterName,
 	}, nil
 }
 
@@ -46,6 +48,8 @@ func (kc *KubernetesClient) GetNamespaces(ctx context.Context) ([]string, error)
 
 type Deployment struct {
 	Name         string
+	Namespace    string
+	Cluster      string
 	Replicas     int32
 	TrueReplicas int32
 	Labels       map[string]string
@@ -78,6 +82,8 @@ func (kc *KubernetesClient) GetDeploymentsFromNamespace(ctx context.Context, nam
 
 		ds = append(ds, Deployment{
 			Name:         d.Name,
+			Namespace:    d.Namespace,
+			Cluster:      kc.clusterName,
 			Replicas:     *d.Spec.Replicas,
 			TrueReplicas: d.Status.Replicas,
 			Labels:       d.Labels,
