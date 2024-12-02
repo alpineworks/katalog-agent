@@ -88,6 +88,8 @@ func translateDeployments(deployments []kubernetes.Deployment) *agentservice.Pub
 
 		translatedDeployments = append(translatedDeployments, &agentservice.Deployment{
 			Name:         d.Name,
+			Namespace:    d.Namespace,
+			Cluster:      d.Cluster,
 			Replicas:     d.Replicas,
 			TrueReplicas: d.TrueReplicas,
 			Labels:       d.Labels,
