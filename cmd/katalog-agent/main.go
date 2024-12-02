@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -19,8 +20,19 @@ import (
 )
 
 func main() {
-	slogHandler := slog.NewJSONHandler(os.Stdout, nil)
-	slog.SetDefault(slog.New(slogHandler))
+	logLevel := os.Getenv("LOG_LEVEL")
+	if logLevel == "" {
+		logLevel = "error"
+	}
+
+	slogLevel, err := logging.LogLevelToSlogLevel(logLevel)
+	if err != nil {
+		log.Fatalf("could not convert log level: %s", err)
+	}
+
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slogLevel,
+	})))
 
 	slog.Info("welcome to katalog-agent!")
 
@@ -29,14 +41,6 @@ func main() {
 		slog.Error("could not create config", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-
-	slogLevel, err := logging.LogLevelToSlogLevel(c.LogLevel)
-	if err != nil {
-		slog.Error("could not parse log level", slog.String("error", err.Error()))
-		os.Exit(1)
-	}
-
-	slog.SetLogLoggerLevel(slogLevel)
 
 	ctx := context.Background()
 
@@ -87,7 +91,7 @@ func main() {
 		}
 	}
 
-	kubernetesClient, err := kubernetes.NewKubernetesClient()
+	kubernetesClient, err := kubernetes.NewKubernetesClient(c.ClusterName)
 	if err != nil {
 		slog.Error("could not create kubernetes client", slog.String("error", err.Error()))
 		os.Exit(1)

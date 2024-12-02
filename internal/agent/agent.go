@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/alpineworks/katalog-agent/internal/kubernetes"
@@ -35,18 +36,24 @@ func (a *Agent) Collect() {
 		return
 	}
 
-	var deployments []kubernetes.Deployment
+	slog.Debug("namespaces", slog.String("namespaces", strings.Join(namespaces, ",")))
+
+	var totalDeployments []kubernetes.Deployment
 	for _, namespace := range namespaces {
-		deployments, err = a.kubernetesClient.GetDeploymentsFromNamespace(collectionCtx, namespace)
+		deployments, err := a.kubernetesClient.GetDeploymentsFromNamespace(collectionCtx, namespace)
 		if err != nil {
 			slog.Error("failed to get deployments", slog.String("error", err.Error()))
 			return
 		}
+
+		totalDeployments = append(totalDeployments, deployments...)
+
+		slog.Debug("deployments", slog.String("namespace", namespace), slog.Int("deployments", len(deployments)))
 	}
 
-	slog.Info("successfully collected data", slog.Int("namespaces", len(namespaces)), slog.Int("deployments", len(deployments)))
+	slog.Info("successfully collected data", slog.Int("namespaces", len(namespaces)), slog.Int("deployments", len(totalDeployments)))
 
-	response, err := a.agentServiceClient.PublishDeployments(ctx, translateDeployments(deployments))
+	response, err := a.agentServiceClient.PublishDeployments(ctx, translateDeployments(totalDeployments))
 	if err != nil {
 		slog.Error("failed to publish deployments", slog.String("error", err.Error()))
 		return
@@ -62,7 +69,7 @@ func (a *Agent) Collect() {
 		return
 	}
 
-	slog.Info("successfully published deployments", slog.Int("deployments", len(deployments)))
+	slog.Info("successfully published deployments", slog.Int("deployments", len(totalDeployments)))
 }
 
 func translateDeployments(deployments []kubernetes.Deployment) *agentservice.PublishDeploymentsRequest {
@@ -75,6 +82,8 @@ func translateDeployments(deployments []kubernetes.Deployment) *agentservice.Pub
 				Image: c.Image,
 				Tag:   c.Tag,
 			})
+
+			slog.Debug("translated container", slog.Any("containers", containers))
 		}
 
 		translatedDeployments = append(translatedDeployments, &agentservice.Deployment{
@@ -84,7 +93,11 @@ func translateDeployments(deployments []kubernetes.Deployment) *agentservice.Pub
 			Labels:       d.Labels,
 			Containers:   containers,
 		})
+
+		slog.Debug("translated deployments", slog.Any("deployments", translatedDeployments))
 	}
+
+	slog.Debug("final translated deployments", slog.Any("deployments", translatedDeployments))
 
 	return &agentservice.PublishDeploymentsRequest{
 		Deployments: translatedDeployments,
